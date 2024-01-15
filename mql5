@@ -1,0 +1,77 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                              Market Structures MT4 |
+//|                       Copyright 2022, Forex Robot Easy Team         |
+//|                                                   forexroboteasy.com|
+//+------------------------------------------------------------------+
+#property version   '1.00'
+#property strict
+
+// Input parameters
+input int bosPeriod = 10; // Period for detecting BoS pattern
+
+//+------------------------------------------------------------------+
+//| Custom indicator initialization function                         |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Indicator buffers mapping
+    SetIndexBuffer(0, ExtMapBuffer);
+
+    // Set indicator parameters
+    SetIndexStyle(0, DRAW_ARROW);
+    SetIndexArrow(0, 233);
+    SetIndexEmptyValue(0, 0);
+
+    // Set indicator label
+    IndicatorShortName('Market Structures MT4');
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom indicator iteration function                              |
+//+------------------------------------------------------------------+
+int OnCalculate(const int rates_total,
+                const int prev_calculated,
+                const datetime &time[],
+                const double &open[],
+                const double &high[],
+                const double &low[],
+                const double &close[],
+                const long &tick_volume[],
+                const long &volume[],
+                const int &spread[])
+{
+    // Detect BoS pattern
+    for(int i = bosPeriod; i < rates_total; i++)
+    {
+        if(IsBoSPattern(i, high))
+        {
+            ExtMapBuffer[i] = high[i]; // Plot BoS pattern
+        }
+        else
+        {
+            ExtMapBuffer[i] = 0; // No BoS pattern detected
+        }
+    }
+
+    return(rates_total);
+}
+
+//+------------------------------------------------------------------+
+//| Check if BoS pattern is present at the given index                |
+//+------------------------------------------------------------------+
+bool IsBoSPattern(const int index, const double &high[])
+{
+    if(high[index] > high[index-1] && high[index] > high[index-2] && high[index] > high[index+1] && high[index] > high[index+2])
+    {
+        return true; // BoS pattern detected
+    }
+    else if(high[index] < high[index-1] && high[index] < high[index-2] && high[index] < high[index+1] && high[index] < high[index+2])
+    {
+        return true; // BoS pattern detected
+    }
+
+    return false; // No BoS pattern detected
+}
